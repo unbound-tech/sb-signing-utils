@@ -42,7 +42,7 @@ usage () {
     echo "	-F, --sw-flags          prefix software header flags in hex"
     echo "	-m, --mode              signing mode: local, independent or production"
     echo "	-k, --kms               key management system for retrieving keys and signatures"
-    echo "	                        (choices are \"signframework\" or \"pkcs11\")"
+    echo "	                        (choices are \"signframework\" or \"pkcs11\" or \"unbound\")"
     echo "	-s, --scratchDir        scratch directory to use for file caching, etc."
     echo "	-L, --label             name or identifier of the module being built (8 char max)"
     echo "	    --contrHdrOut       file write container header only (w/o payload)"
