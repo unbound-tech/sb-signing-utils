@@ -426,6 +426,7 @@ then
     signproject_getpubkey_project_basename=""
     pkcs11_module=""
     pkcs11_token=""
+    ub_pkcs11_token=""
 
     echo "--> $P: Parsing INI file: $PROJECT_INI"
     parseIni "$PROJECT_INI"
@@ -450,6 +451,8 @@ then
 
     test "$pkcs11_module" && SB_PKCS11_MODULE="$pkcs11_module"
     test "$pkcs11_token" && SB_PKCS11_TOKEN="$pkcs11_token"
+
+    test "$ub_pkcs11_token" && UB_PKCS11_TOKEN="$ub_pkcs11_token"
 fi
 
 #
@@ -726,6 +729,11 @@ then
                             --token-label $SB_PKCS11_TOKEN \
                             --read-object --type pubkey --label $SF_PROJECT | \
                     openssl ec -inform der -pubin -pubout -out "$T/$KEYFILE" &>/dev/null
+            elif [ "$KMS" == "unbound" ]
+            then
+                # Output is pubkey in PEM format
+                KEYFILE="$KEYFILE_BASE.pub"
+                ucl export -n $UB_PKCS11_TOKEN -o "$T/$KEYFILE"
 
             else
                 die "Unsupported KMS: $KMS"
@@ -780,6 +788,11 @@ then
                             --token-label $SB_PKCS11_TOKEN \
                             --read-object --type pubkey --label $SF_PROJECT | \
                     openssl ec -inform der -pubin -pubout -out "$T/$KEYFILE" &>/dev/null
+            elif [ "$KMS" == "unbound" ]
+            then
+                # Output is pubkey in PEM format
+                KEYFILE="$KEYFILE_BASE.pub"
+                ucl export -n $UB_PKCS11_TOKEN -o "$T/$KEYFILE"
             fi
 
             rc=$?
@@ -969,6 +982,11 @@ then
                 /bin/openssl dgst -engine pkcs11 -keyform engine \
                              -sign "pkcs11:token=$SB_PKCS11_TOKEN;object=$SF_PROJECT" \
                              -sha512 -out "$T/$SIGFILE" "$T/prefix_hdr"
+            elif [ "$KMS" == "unbound" ]
+            then
+                # Output is signature in DER format
+                SIGFILE="$SIGFILE_BASE.sig"
+                ucl sign -n $UB_PKCS11_TOKEN -i "$T/prefix_hdr" -o "$T/$SIGFILE" --hash sha512
             fi
 
             rc=$?
@@ -1028,6 +1046,11 @@ then
                 /bin/openssl dgst -engine pkcs11 -keyform engine \
                              -sign "pkcs11:token=$SB_PKCS11_TOKEN;object=$SF_PROJECT" \
                              -sha512 -out "$T/$SIGFILE" "$T/software_hdr"
+            elif [ "$KMS" == "unbound" ]
+            then
+                # Output is signature in DER format
+                SIGFILE="$SIGFILE_BASE.sig"
+                ucl sign -n $UB_PKCS11_TOKEN -i "$T/software_hdr" -o "$T/$SIGFILE" --hash sha512
             fi
 
             rc=$?
